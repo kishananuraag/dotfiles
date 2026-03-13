@@ -1,0 +1,21 @@
+# Common shell aliases
+alias ll='ls -la'
+alias la='ls -a'
+alias l='ls -CF'
+
+# Git shortcuts
+alias gs='git status'
+alias ga='git add'
+alias gc='git commit'
+alias gp='git push'
+alias gl='git log --oneline -10'
+
+# Development shortcuts
+alias dev='npm run dev'
+alias build='npm run build'
+alias test='npm test'
+
+# Safety
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
