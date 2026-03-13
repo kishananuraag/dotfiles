@@ -1,0 +1,21 @@
+[user]
+	name = kishananuraag
+	email = kishananuraag@gmail.com
+
+[core]
+	editor = vim
+	autocrlf = input
+
+[alias]
+	st = status
+	co = checkout
+	br = branch
+	ci = commit
+	lg = log --oneline --graph --decorate -20
+	undo = reset --soft HEAD~1
+
+[pull]
+	rebase = false
+
+[init]
+	defaultBranch = main
