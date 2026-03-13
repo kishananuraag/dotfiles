@@ -13,13 +13,20 @@ tap "homebrew/bundle"
 # Essential CLI tools
 brew "git"
 brew "zsh-autosuggestions"
+brew "zsh-syntax-highlighting"
 brew "ripgrep"
 brew "neovim"
 brew "zlib"
+brew "curl"
+brew "wget"
 
 # Programming Languages
 brew "node"
 brew "python@3.11"
+
+# Container & DevOps
+brew "docker"
+brew "docker-compose"
 
 # ==============================================================================
 # FONTS
@@ -60,6 +67,13 @@ cask "discord"
 # Theme & Icons
 vscode "catppuccin.catppuccin-vsc"
 vscode "catppuccin.catppuccin-vsc-icons"
+
+# Essential Extensions
+vscode "ms-vscode-remote.remote-wsl"
+vscode "ms-vscode.vscode-docker"
+vscode "eamodio.gitlens"
+vscode "esbenp.prettier-vscode"
+vscode "ms-python.python"
 
 # SQL Server Tools
 vscode "ms-mssql.mssql"

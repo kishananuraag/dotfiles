@@ -1,0 +1,16 @@
+catppuccin.catppuccin-vsc
+catppuccin.catppuccin-vsc-icons
+ms-vscode-remote.remote-wsl
+ms-vscode.vscode-docker
+eamodio.gitlens
+esbenp.prettier-vscode
+ms-python.python
+ms-python.black-formatter
+ms-python.pylint
+ms-mssql.mssql
+ms-mssql.sql-database-projects-vscode
+ms-vscode.vscode-typescript-next
+bradlc.vscode-tailwindcss
+formulahendry.auto-rename-tag
+christian-kohler.path-intellisense
+ms-vscode.vscode-json

@@ -1,0 +1,32 @@
+# WSL/Linux Brewfile
+# Essential packages for WSL development environment using Homebrew on Linux
+
+# Core taps
+tap "homebrew/bundle"
+
+# ==============================================================================
+# DEVELOPMENT TOOLS
+# ==============================================================================
+
+# Essential CLI tools
+brew "git"
+brew "zsh"
+brew "curl"
+brew "wget"
+brew "ripgrep"
+brew "neovim"
+brew "build-essential"
+
+# Programming Languages
+brew "node"
+brew "python@3.11"
+
+# Container & DevOps
+brew "docker"
+brew "docker-compose"
+
+# Additional Linux-specific tools
+brew "fd"
+brew "bat"
+brew "exa"
+brew "htop"

@@ -1,0 +1,63 @@
+# SSH Configuration Template
+# Copy to ~/.ssh/config and customize for your needs
+# Make sure to set proper permissions: chmod 600 ~/.ssh/config
+
+# Default settings for all hosts
+Host *
+    # Keep connections alive
+    ServerAliveInterval 60
+    ServerAliveCountMax 3
+    
+    # Use SSH keys by default
+    IdentitiesOnly yes
+    
+    # Connection timeouts
+    ConnectTimeout 10
+    
+    # Disable host key checking for local development (use with caution)
+    # StrictHostKeyChecking no
+
+# GitHub configuration
+Host github.com
+    HostName github.com
+    User git
+    Port 22
+    IdentityFile ~/.ssh/id_ed25519
+    IdentitiesOnly yes
+
+# GitLab configuration
+Host gitlab.com
+    HostName gitlab.com
+    User git
+    Port 22
+    IdentityFile ~/.ssh/id_ed25519
+    IdentitiesOnly yes
+
+# Example server configuration
+# Host myserver
+#     HostName example.com
+#     User yourusername
+#     Port 22
+#     IdentityFile ~/.ssh/id_ed25519
+#     ForwardAgent yes
+
+# Example development server with custom port
+# Host devserver
+#     HostName dev.example.com
+#     User developer
+#     Port 2222
+#     IdentityFile ~/.ssh/id_rsa
+#     LocalForward 3000 localhost:3000
+#     LocalForward 8080 localhost:8080
+
+# Example production server with jump host
+# Host production
+#     HostName prod.internal.com
+#     User produser
+#     ProxyJump jumphost.example.com
+#     IdentityFile ~/.ssh/id_ed25519
+
+# Jump host configuration
+# Host jumphost.example.com
+#     User jumpuser
+#     IdentityFile ~/.ssh/id_ed25519
