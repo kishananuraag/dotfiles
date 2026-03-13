@@ -1,0 +1,179 @@
+# GlazeWM Configuration
+# Tiling window manager for Windows
+# Copy to: %APPDATA%\glazewm\config.yaml
+
+# General settings
+general:
+  # Workspaces per monitor (count)
+  workspace_count: 10
+  
+  # Focus follows mouse
+  focus_follows_mouse: true
+  
+  # Enable live reload
+  reload_config_on_change: true
+
+  # Hide taskbar when in tiling mode (optional)
+  # hide_taskbar: false
+
+# Binding mode (activated with Alt+Space or similar)
+modes:
+  resize:
+    # Resize mode keybindings
+    keybindings:
+      - command: resize direction left
+        binding: H
+      - command: resize direction right
+        binding: L
+      - command: resize direction up
+        binding: K
+      - command: resize direction down
+        binding: J
+      - command: resize direction left
+        binding: Left
+      - command: resize direction right
+        binding: Right
+      - command: resize direction up
+        binding: Up
+      - command: resize direction down
+        binding: Down
+      - command: exit_mode
+        binding: Escape
+      - command: exit_mode
+        binding: Enter
+
+# Window focus keybindings (Alt = like Cmd on Mac)
+keybindings:
+  # Focus windows (vim-style: H-J-K-L)
+  - command: focus direction left
+    binding: Alt+H
+  - command: focus direction right
+    binding: Alt+L
+  - command: focus direction up
+    binding: Alt+K
+  - command: focus direction down
+    binding: Alt+J
+
+  # Focus windows (arrows)
+  - command: focus direction left
+    binding: Alt+Left
+  - command: focus direction right
+    binding: Alt+Right
+  - command: focus direction up
+    binding: Alt+Up
+  - command: focus direction down
+    binding: Alt+Down
+
+  # Move focused window
+  - command: move direction left
+    binding: Alt+Shift+H
+  - command: move direction right
+    binding: Alt+Shift+L
+  - command: move direction up
+    binding: Alt+Shift+K
+  - command: move direction down
+    binding: Alt+Shift+J
+
+  # Move with arrows + Shift
+  - command: move direction left
+    binding: Alt+Shift+Left
+  - command: move direction right
+    binding: Alt+Shift+Right
+  - command: move direction up
+    binding: Alt+Shift+Up
+  - command: move direction down
+    binding: Alt+Shift+Down
+
+  # Split (like i3)
+  - command: toggle split
+    binding: Alt+Enter
+
+  # Floating window toggle
+  - command: toggle floating
+    binding: Alt+Space
+
+  # Maximize/restore
+  - command: toggle always on top
+    binding: Alt+M
+
+  # Close window
+  - command: close window
+    binding: Alt+Q
+
+  # Enter resize mode (for precise resizing)
+  - command: enter_resize mode
+    binding: Alt+R
+
+  # Workspaces (1-9)
+  - command: workspace 1
+    binding: Alt+1
+  - command: workspace 2
+    binding: Alt+2
+  - command: workspace 3
+    binding: Alt+3
+  - command: workspace 4
+    binding: Alt+4
+  - command: workspace 5
+    binding: Alt+5
+  - command: workspace 6
+    binding: Alt+6
+  - command: workspace 7
+    binding: Alt+7
+  - command: workspace 8
+    binding: Alt+8
+  - command: workspace 9
+    binding: Alt+9
+  - command: workspace 10
+    binding: Alt+0
+
+  # Send to workspace
+  - command: send to workspace 1
+    binding: Alt+Shift+1
+  - command: send to workspace 2
+    binding: Alt+Shift+2
+  - command: send to workspace 3
+    binding: Alt+Shift+3
+  - command: send to workspace 4
+    binding: Alt+Shift+4
+  - command: send to workspace 5
+    binding: Alt+Shift+5
+  - command: send to workspace 6
+    binding: Alt+Shift+6
+  - command: send to workspace 7
+    binding: Alt+Shift+7
+  - command: send to workspace 8
+    binding: Alt+Shift+8
+  - command: send to workspace 9
+    binding: Alt+Shift+9
+  - command: send to workspace 10
+    binding: Alt+Shift+0
+
+  # Cycle workspaces
+  - command: workspace cycle next
+    binding: Alt+Tab
+  - command: workspace cycle prev
+    binding: Alt+Shift+Tab
+
+  # Reload config
+  - command: reload config
+    binding: Alt+Shift+R
+
+# Workspace layouts per monitor
+workspaces:
+  - name: "1"
+    layout: "horizontal"
+  - name: "2"
+    layout: "horizontal"
+  - name: "3"
+    layout: "horizontal"
+  - name: "4"
+    layout: "horizontal"
+  - name: "5"
+    layout: "horizontal"
+
+# Window rules (optional)
+# window_rules:
+#   - program: "Chrome"
+#     layout: "maximized"
+#   - program: "Code"
+#     layout: "maximized"
