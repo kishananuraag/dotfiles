@@ -1,8 +1,52 @@
-# Windows & WSL Installation Guide
+# Windows Installation Guide
 
-Complete guide for setting up the dotfiles on Windows with WSL (Windows Subsystem for Linux).
+Two approaches for Windows development environment setup:
 
-## Prerequisites
+1. **Windows-Native Setup** (Recommended) - Alacritty + PowerShell 7 + Neovim
+2. **WSL Setup** - Windows Subsystem for Linux with Unix tools
+
+---
+
+## 🎯 Recommended: Windows-Native Setup (Alacritty)
+
+**Modern, lightweight Windows development environment** with Alacritty terminal, PowerShell 7, and the Kanagawa Dragon theme.
+
+### Why Windows-Native?
+
+- ✅ **Faster** - No WSL overhead, direct Windows performance
+- ✅ **GPU-Accelerated** - Smooth terminal rendering
+- ✅ **Integrated** - Native Windows filesystem access
+- ✅ **Beautiful** - Cohesive Kanagawa Dragon theme
+- ✅ **Productive** - Modern CLI tools, keyboard remapping
+
+### Quick Setup
+
+```powershell
+# Run as Administrator
+git clone https://github.com/kishananuraag/dotfiles.git $env:USERPROFILE\.dotfiles
+cd $env:USERPROFILE\.dotfiles\windows
+Set-ExecutionPolicy Bypass -Scope Process -Force
+.\install-windows.ps1
+```
+
+**📖 Complete Guide:** See [ALACRITTY_SETUP.md](./ALACRITTY_SETUP.md) for detailed installation, configuration, and troubleshooting.
+
+**What gets installed:**
+- Alacritty terminal with Kanagawa Dragon theme
+- PowerShell 7 + Starship prompt
+- Neovim + LazyVim
+- Iosevka font
+- Modern CLI tools (zoxide, fzf, ripgrep, bat, eza)
+- GlazeWM tiling window manager
+- Kanata keyboard remapper (optional)
+
+---
+
+## WSL Setup (Alternative)
+
+If you prefer a Linux environment on Windows, follow the WSL setup below.
+
+### Prerequisites
 
 - **Windows 10 version 2004** (Build 19041) or later, or **Windows 11**
 - **Administrator privileges** for initial setup

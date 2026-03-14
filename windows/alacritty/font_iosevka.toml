@@ -1,0 +1,29 @@
+# Iosevka Font Configuration
+# Programmer's font with ligatures
+
+[font]
+size = 12.0
+
+[font.normal]
+family = "Iosevka"
+style = "Regular"
+
+[font.bold]
+family = "Iosevka"
+style = "Bold"
+
+[font.italic]
+family = "Iosevka"
+style = "Italic"
+
+[font.bold_italic]
+family = "Iosevka"
+style = "Bold Italic"
+
+[font.offset]
+x = 0
+y = 0
+
+[font.glyph_offset]
+x = 0
+y = 0

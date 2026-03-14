@@ -1,0 +1,53 @@
+# Alacritty Configuration
+# Based on shivajreddy's config with Kanagawa theme
+
+import = [
+    "~/.dotfiles/windows/alacritty/kanagawa_dragon.toml",
+    "~/.dotfiles/windows/alacritty/font_iosevka.toml",
+]
+
+[window]
+opacity = 0.95
+blur = true
+decorations = "Full"
+startup_mode = "Windowed"
+dynamic_title = true
+
+[window.padding]
+x = 8
+y = 8
+
+[scrolling]
+history = 10000
+multiplier = 3
+
+[cursor]
+style = { shape = "Block", blinking = "On" }
+blink_interval = 750
+unfocused_hollow = true
+
+[cursor.style]
+blinking = "On"
+
+[selection]
+save_to_clipboard = true
+
+[mouse]
+hide_when_typing = true
+
+[hints]
+enabled = []
+
+[keyboard]
+bindings = [
+    { key = "V", mods = "Control|Shift", action = "Paste" },
+    { key = "C", mods = "Control|Shift", action = "Copy" },
+    { key = "Plus", mods = "Control", action = "IncreaseFontSize" },
+    { key = "Minus", mods = "Control", action = "DecreaseFontSize" },
+    { key = "Key0", mods = "Control", action = "ResetFontSize" },
+    { key = "N", mods = "Control|Shift", action = "SpawnNewInstance" },
+]
+
+[shell]
+program = "pwsh"
+args = ["-NoLogo"]

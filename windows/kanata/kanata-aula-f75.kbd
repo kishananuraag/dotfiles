@@ -1,0 +1,104 @@
+;; Kanata Configuration for AULA F75 (75% Keyboard)
+;; 
+;; This is a starter configuration that provides basic ergonomic remapping.
+;; Customize to your preferences!
+;;
+;; Key features:
+;; - Caps Lock → Escape (tap) / Navigation Layer (hold)
+;; - Swap Left Ctrl and Left Alt for better ergonomics
+;; - Navigation layer: HJKL for arrow keys (Vim-style)
+;;
+;; To use this config:
+;; 1. Install Kanata (see README.md)
+;; 2. Run: kanata.exe --cfg kanata-aula-f75.kbd
+;; 3. Add to Windows startup (optional)
+
+(defsrc
+  ;; Modifier keys - swap Ctrl and Alt positions
+  lctl lalt ralt
+  
+  ;; Caps Lock - will become dual-function key
+  caps
+  
+  ;; Navigation cluster for Vim-style arrow keys
+  h j k l
+  
+  ;; Common keys
+  ret
+)
+
+(deflayer default
+  ;; Swap Left Ctrl ↔ Left Alt (ergonomic for Windows shortcuts)
+  ;; This makes Ctrl easier to reach with thumb/pinky
+  lalt lctl lalt
+  
+  ;; Caps Lock becomes dual-function: tap for Esc, hold for Nav layer
+  @cap
+  
+  ;; Normal keys remain unchanged
+  h j k l
+  ret
+)
+
+(deflayer nav
+  ;; Keep modifiers transparent (pass-through)
+  _    _    _
+  
+  ;; Transparent caps
+  _
+  
+  ;; HJKL → Arrow keys (Vim-style navigation)
+  ;; H = Left, J = Down, K = Up, L = Right
+  left down up right
+  
+  ;; Return becomes Caps Lock in this layer (if you need it)
+  caps
+)
+
+(defalias
+  ;; Caps Lock alias: tap for Escape, hold for navigation layer
+  ;; Timing: 200ms tap threshold, 200ms hold threshold
+  cap (tap-hold 200 200 esc (layer-toggle nav))
+)
+
+;; ============================================================================
+;; CUSTOMIZATION IDEAS (uncomment and modify as needed)
+;; ============================================================================
+
+;; Idea 1: Add a symbols layer for programming
+;; (deflayer sym
+;;   _    _    _
+;;   _
+;;   [ ] { }
+;;   _
+;; )
+
+;; Idea 2: Make right Alt a layer toggle for symbols
+;; (defalias
+;;   sym (layer-toggle sym)
+;; )
+
+;; Idea 3: Add home row mods (Ctrl/Alt/Shift on home row)
+;; WARNING: This takes practice! May interfere with normal typing at first.
+;; (defalias
+;;   a (tap-hold 200 200 a lctl)
+;;   s (tap-hold 200 200 s lalt)
+;;   d (tap-hold 200 200 d lsft)
+;; )
+
+;; ============================================================================
+;; NOTES FOR AULA F75 KEYBOARD
+;; ============================================================================
+;; 
+;; Layout: 75% (80 keys)
+;; - Has dedicated arrow keys (bottom right)
+;; - Has F-row keys
+;; - No numpad
+;; - Compact navigation cluster (Del, PgUp, PgDn, etc.)
+;;
+;; This config focuses on:
+;; 1. Better ergonomics (swap Ctrl/Alt)
+;; 2. Vim-style navigation without moving hands
+;; 3. Caps Lock → Esc/Nav (most useful remap for programmers)
+;;
+;; Adjust timings and mappings based on your typing speed and preferences!

@@ -1,17 +1,21 @@
 # Cross-Platform Dotfiles
 
-Automated development environment setup for macOS, Linux, WSL, and Windows with one-command installation.
+Automated development environment setup for macOS, Linux, and Windows with one-command installation.
 
 ## ✨ Features
 
 - 🚀 **One-command installation** on any platform
-- 📦 **Automated package management** via Homebrew (macOS + WSL)
-- 🎨 **Zsh with Oh My Zsh** - robbyrussell theme, auto-suggestions, syntax highlighting
+- 📦 **Automated package management** via Homebrew (macOS) / winget (Windows)
+- 🎨 **Zsh with Oh My Zsh** (macOS/Linux) - robbyrussell theme, auto-suggestions, syntax highlighting
+- ⚡ **PowerShell 7 + Starship** (Windows) - Modern prompt with Kanagawa Dragon theme
+- 🖥️ **Alacritty Terminal** (Windows) - GPU-accelerated, Iosevka font, Kanagawa theme
+- 📝 **Neovim + LazyVim** - Modern text editor with LSP, completion, and plugins
+- ⌨️ **Kanata Keyboard Remapping** (Windows) - Ergonomic keyboard customization
 - 🐳 **Docker** - Shortcuts and aliases for container management
 - 💻 **VS Code** - Synced settings, keybindings, and extensions
 - 🔐 **Git & SSH** - Pre-configured with best practices
 - 🐍 **Python & Node.js** - Version managers and configs
-- 🪟 **Windows** - GlazeWM tiling window manager + PowerShell aliases
+- 🪟 **GlazeWM** (Windows) - Tiling window manager for productivity
 
 ## 🎯 What Gets Installed
 
@@ -36,16 +40,29 @@ Automated development environment setup for macOS, Linux, WSL, and Windows with 
 
 ## 🚀 Quick Start
 
-### Fresh Windows (No WSL)
+### Windows (Alacritty + Native PowerShell)
 ```powershell
-# 1. Download bootstrap script
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/kishananuraag/dotfiles/main/bootstrap.ps1" -OutFile "$env:USERPROFILE\Downloads\bootstrap.ps1"
+# Run as Administrator (Right-click PowerShell → Run as Administrator)
 
-# 2. Run as Administrator
-cd $env:USERPROFILE\Downloads
+# 1. Clone the repository
+git clone https://github.com/kishananuraag/dotfiles.git $env:USERPROFILE\.dotfiles
+
+# 2. Run the installation script
+cd $env:USERPROFILE\.dotfiles\windows
 Set-ExecutionPolicy Bypass -Scope Process -Force
-.\bootstrap.ps1
+.\install-windows.ps1
 ```
+
+**What gets installed:**
+- Alacritty terminal with Kanagawa Dragon theme
+- PowerShell 7 + Starship prompt
+- Neovim with LazyVim configuration
+- Iosevka font (programmer font with ligatures)
+- Kanata keyboard remapper (optional)
+- GlazeWM tiling window manager
+- Modern CLI tools: zoxide, fzf, ripgrep, bat, eza
+
+See [docs/ALACRITTY_SETUP.md](docs/ALACRITTY_SETUP.md) for detailed setup guide.
 
 ### macOS or Linux
 ```bash
@@ -54,19 +71,15 @@ cd ~/.dotfiles
 ./install.sh
 ```
 
-### WSL (Already Installed)
-```bash
-git clone https://github.com/kishananuraag/dotfiles.git ~/.dotfiles
-cd ~/.dotfiles
-./install.sh
-```
-
 ## 📚 Documentation
 
-- [Windows/WSL Setup Guide](docs/WINDOWS.md) - Complete Windows installation guide
+- [Alacritty Setup (Windows)](docs/ALACRITTY_SETUP.md) - Complete Alacritty + PowerShell setup
+- [Windows Guide](docs/WINDOWS.md) - Windows-specific configuration
 - [macOS Setup Guide](docs/MACOS.md) - macOS installation and configuration
 - [Troubleshooting](docs/TROUBLESHOOTING.md) - Common issues and solutions
 - [SSH Configuration](ssh/README.md) - SSH key setup and GitHub authentication
+- [Neovim Setup](windows/nvim/README.md) - LazyVim installation and usage
+- [Kanata Keyboard Remapping](windows/kanata/README.md) - Keyboard customization guide
 
 ## 🛠️ Configuration Files
 
@@ -87,11 +100,14 @@ cd ~/.dotfiles
 - `docker/aliases.zsh` - Docker shortcuts and functions
 - `ssh/config.example` - SSH configuration template
 
-### Windows Integration
-- `bootstrap.ps1` - Automated WSL installation for Windows
-- `install.ps1` - Windows PowerShell setup
-- `aliases_windows.ps1` - PowerShell aliases
-- `glaze.yaml` - GlazeWM tiling window manager config
+### Windows Configuration
+- `windows/install-windows.ps1` - One-command Windows setup script
+- `windows/alacritty/` - Alacritty terminal configuration with Kanagawa theme
+- `windows/PowerShell/` - PowerShell 7 profile with aliases and customizations
+- `windows/starship.toml` - Starship prompt configuration (Kanagawa Dragon theme)
+- `windows/nvim/` - Neovim LazyVim setup guide
+- `windows/kanata/` - Kanata keyboard remapping (AULA F75 config)
+- `windows/glaze.yaml` - GlazeWM tiling window manager config
 
 ### Documentation & Scripts
 - `docs/` - Platform-specific installation guides
@@ -125,10 +141,8 @@ Create local overrides for machine-specific settings:
 ```
 dotfiles/
 ├── README.md                    # This file
-├── install.sh                   # Main installation script
-├── bootstrap.ps1                # Windows WSL bootstrap
+├── install.sh                   # macOS/Linux installation script
 ├── Brewfile                     # macOS packages
-├── Brewfile.wsl                 # WSL packages
 │
 ├── aliases                      # Shell aliases
 ├── gitconfig                    # Git configuration
@@ -143,9 +157,14 @@ dotfiles/
 ├── scripts/                     # Utility scripts
 ├── docs/                        # Documentation
 │
-├── aliases_windows.ps1          # Windows PowerShell aliases
-├── install.ps1                  # Windows installation
-└── glaze.yaml                   # Windows tiling manager
+└── windows/                     # Windows-specific configurations
+    ├── install-windows.ps1      # Windows installation script
+    ├── alacritty/               # Alacritty terminal config (Kanagawa theme)
+    ├── PowerShell/              # PowerShell 7 profile + aliases
+    ├── starship.toml            # Starship prompt (Kanagawa Dragon)
+    ├── nvim/                    # Neovim LazyVim setup guide
+    ├── kanata/                  # Keyboard remapping (AULA F75)
+    └── glaze.yaml               # GlazeWM tiling window manager
 ```
 
 ## 🤝 Contributing
