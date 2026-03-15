@@ -1,24 +1,8 @@
-#Requires -RunAsAdministrator
-
-<#
-.SYNOPSIS
-    Windows Dotfiles Installation Script - Alacritty Development Environment
-.DESCRIPTION
-    Automated installation and configuration of Windows-native development environment
-    including Alacritty, PowerShell 7, Starship, Neovim, Kanata, and GlazeWM.
-    
-    Based on shivajreddy's dotfiles configuration with Kanagawa Dragon theme.
-.NOTES
-    Author: Anurag Kishan
-    Requires: Windows 10/11, Administrator privileges
-    Theme: Kanagawa Dragon (dark blue/purple)
-    Font: Iosevka (programmer font with ligatures)
-#>
-
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
     [switch]$SkipPackages,
     [switch]$SkipSymlinks,
+    [switch]$SkipFonts,
     [switch]$SkipNeovim,
     [switch]$SkipKanata
 )
@@ -43,17 +27,35 @@ function Write-Step {
 
 function Write-Success { 
     param([string]$Message)
-    Write-Host "[✓] $Message" -ForegroundColor Green 
+    Write-Host "[+] $Message" -ForegroundColor Green 
 }
 
-function Write-Warning { 
+function Write-Warn { 
     param([string]$Message)
     Write-Host "[!] $Message" -ForegroundColor Yellow 
 }
 
 function Write-Fail { 
     param([string]$Message)
-    Write-Host "[✗] $Message" -ForegroundColor Red 
+    Write-Host "[x] $Message" -ForegroundColor Red 
+}
+
+# ============================================================================
+# FIX SMART QUOTES IN PS1 FILES
+# ============================================================================
+
+Write-Step "Fixing smart quotes in PowerShell scripts..."
+Get-ChildItem "$DotfilesRoot\windows" -Filter "*.ps1" -Recurse | ForEach-Object {
+    $content = Get-Content $_.FullName -Raw -Encoding UTF8
+    $fixed = $content `
+        -replace [char]0x201C, '"' `
+        -replace [char]0x201D, '"' `
+        -replace [char]0x2018, "'" `
+        -replace [char]0x2019, "'"
+    if ($fixed -ne $content) {
+        Set-Content $_.FullName -Value $fixed -Encoding UTF8
+        Write-Success "Fixed quotes in $($_.Name)"
+    }
 }
 
 # ============================================================================
@@ -61,15 +63,6 @@ function Write-Fail {
 # ============================================================================
 
 Write-Step "Checking prerequisites..."
-
-# Check if running as Administrator
-if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
-    Write-Fail "This script must be run as Administrator"
-    Write-Host "Right-click PowerShell and select 'Run as Administrator'"
-    exit 1
-}
-
-Write-Success "Running as Administrator"
 
 # Check if winget is installed
 if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
@@ -79,6 +72,12 @@ if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
 }
 
 Write-Success "winget is available"
+
+# Check if running as admin (for informational purposes)
+$isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+if ($isAdmin) {
+    Write-Warn "Running as Administrator - Scoop requires a normal user session."
+}
 
 # ============================================================================
 # PACKAGE INSTALLATION
@@ -104,49 +103,50 @@ if (-not $SkipPackages) {
     foreach ($pkg in $packages) {
         Write-Host "  Installing $($pkg.DisplayName)..." -ForegroundColor Yellow
         try {
-            winget install --id $pkg.Name --silent --accept-package-agreements --accept-source-agreements
-            Write-Success "$($pkg.DisplayName) installed"
+            winget install --id $pkg.Name --silent --accept-package-agreements --accept-source-agreements 2>&1
+            if ($LASTEXITCODE -eq 0 -or $LASTEXITCODE -eq -1978335189) {
+                Write-Success "$($pkg.DisplayName) installed (or already present)"
+            } else {
+                Write-Warn "$($pkg.DisplayName) may have failed - check manually"
+            }
         }
         catch {
-            Write-Warning "Failed to install $($pkg.DisplayName): $_"
+            Write-Warn "Failed to install $($pkg.DisplayName): $_"
         }
     }
 
-    # Install Iosevka font
-    Write-Step "Installing Iosevka font..."
-    
-    $fontUrl = "https://github.com/be5invis/Iosevka/releases/download/v32.3.1/PkgTTF-Iosevka-32.3.1.zip"
-    $fontZip = Join-Path $env:TEMP "Iosevka.zip"
-    $fontExtract = Join-Path $env:TEMP "Iosevka"
-    
-    try {
-        Write-Host "  Downloading Iosevka font..." -ForegroundColor Yellow
-        Invoke-WebRequest -Uri $fontUrl -OutFile $fontZip -UseBasicParsing
-        
-        Write-Host "  Extracting fonts..." -ForegroundColor Yellow
-        Expand-Archive -Path $fontZip -DestinationPath $fontExtract -Force
-        
-        Write-Host "  Installing fonts..." -ForegroundColor Yellow
-        $fonts = Get-ChildItem -Path $fontExtract -Filter "*.ttf" -Recurse
-        $fontsFolder = (New-Object -ComObject Shell.Application).Namespace(0x14)
-        
-        foreach ($font in $fonts) {
-            $fontsFolder.CopyHere($font.FullName)
+    # Install Iosevka font via Scoop
+    if (-not $SkipFonts) {
+        Write-Step "Installing Iosevka Nerd Font via Scoop..."
+
+        if ($isAdmin) {
+            Write-Warn "Running as Administrator - Scoop requires a normal user session."
+            Write-Host "    Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force" -ForegroundColor White
+            Write-Host "    Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression" -ForegroundColor White
+            Write-Host "    scoop bucket add nerd-fonts" -ForegroundColor White
+            Write-Host "    scoop install nerd-fonts/Iosevka-NF" -ForegroundColor White
+        } else {
+            # Install Scoop if not present
+            if (-not (Get-Command scoop -ErrorAction SilentlyContinue)) {
+                Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
+                Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
+            }
+
+            scoop bucket add nerd-fonts 2>&1 | Out-Null
+            scoop install nerd-fonts/Iosevka-NF
+
+            if ($LASTEXITCODE -eq 0) {
+                Write-Success "Iosevka NF font installed"
+            } else {
+                Write-Warn "Font install may have failed - check scoop output above"
+            }
         }
-        
-        Write-Success "Iosevka font installed"
-        
-        # Cleanup
-        Remove-Item $fontZip -Force -ErrorAction SilentlyContinue
-        Remove-Item $fontExtract -Recurse -Force -ErrorAction SilentlyContinue
-    }
-    catch {
-        Write-Warning "Failed to install Iosevka font: $_"
-        Write-Host "  You can manually install from: https://github.com/be5invis/Iosevka/releases"
+    } else {
+        Write-Warn "Skipping font installation (--SkipFonts)"
     }
 
 } else {
-    Write-Warning "Skipping package installation (--SkipPackages)"
+    Write-Warn "Skipping package installation (--SkipPackages)"
 }
 
 # ============================================================================
@@ -157,7 +157,7 @@ Write-Step "Creating directory structure..."
 
 $directories = @(
     $ConfigRoot
-    (Join-Path $ConfigRoot "alacritty")
+    (Join-Path $env:APPDATA "alacritty")
     (Join-Path $ConfigRoot "kanata")
     (Join-Path $env:USERPROFILE "Documents\PowerShell")
 )
@@ -169,6 +169,85 @@ foreach ($dir in $directories) {
     } else {
         Write-Host "  Exists: $dir" -ForegroundColor DarkGray
     }
+}
+
+# ============================================================================
+# WRITE ALACRITTY CONFIG (directly to APPDATA with import)
+# ============================================================================
+
+Write-Step "Writing Alacritty config..."
+
+$dotfilesForward = $DotfilesRoot.Replace('\', '/')
+
+$alacrittyConfig = @"
+# Alacritty Configuration - Kanagawa Dragon Theme
+# Auto-generated by install-windows.ps1
+
+[general]
+import = [
+    "$dotfilesForward/windows/alacritty/kanagawa_dragon.toml",
+]
+
+[font]
+normal  = { family = "Iosevka NF", style = "Regular" }
+bold    = { family = "Iosevka NF", style = "Bold" }
+italic  = { family = "Iosevka NF", style = "Obl" }
+size    = 13.0
+
+[window]
+opacity        = 0.95
+blur           = true
+decorations    = "Full"
+startup_mode   = "Windowed"
+dynamic_title  = true
+
+[window.dimensions]
+columns = 200
+lines   = 50
+
+[window.padding]
+x = 10
+y = 10
+
+[scrolling]
+history    = 10000
+multiplier = 3
+
+[cursor]
+style            = { shape = "Block", blinking = "On" }
+blink_interval   = 750
+unfocused_hollow = true
+
+[selection]
+save_to_clipboard = true
+
+[mouse]
+hide_when_typing = true
+
+[keyboard]
+bindings = [
+    { key = "V",     mods = "Control|Shift", action = "Paste" },
+    { key = "C",     mods = "Control|Shift", action = "Copy" },
+    { key = "Plus",  mods = "Control",       action = "IncreaseFontSize" },
+    { key = "Minus", mods = "Control",       action = "DecreaseFontSize" },
+    { key = "Key0",  mods = "Control",       action = "ResetFontSize" },
+    { key = "N",     mods = "Control|Shift", action = "SpawnNewInstance" },
+]
+
+[shell]
+program = "pwsh"
+args    = ["-NoLogo", "-WorkingDirectory", "~"]
+"@
+
+Set-Content "$env:APPDATA\alacritty\alacritty.toml" -Value $alacrittyConfig -Encoding UTF8
+Write-Success "Alacritty config written to $env:APPDATA\alacritty\alacritty.toml"
+
+# Migrate deprecated Alacritty syntax
+if (Get-Command alacritty -ErrorAction SilentlyContinue) {
+    alacritty migrate 2>&1 | Out-Null
+    Write-Success "Alacritty config migrated"
+} else {
+    Write-Warn "Alacritty not found in PATH yet - run 'alacritty migrate' after restarting terminal"
 }
 
 # ============================================================================
@@ -185,7 +264,7 @@ if (-not $SkipSymlinks) {
         )
         
         if (Test-Path $Target) {
-            Write-Warning "Target already exists: $Target"
+            Write-Warn "Target already exists: $Target"
             $response = Read-Host "  Overwrite? (y/N)"
             if ($response -ne 'y') {
                 Write-Host "  Skipped: $Target" -ForegroundColor DarkGray
@@ -202,24 +281,6 @@ if (-not $SkipSymlinks) {
             Write-Fail "Failed to create symlink: $_"
         }
     }
-
-    # Alacritty configuration
-    New-Symlink `
-        -Source (Join-Path $WindowsRoot "alacritty\alacritty.toml") `
-        -Target (Join-Path $ConfigRoot "alacritty\alacritty.toml")
-    
-    New-Symlink `
-        -Source (Join-Path $WindowsRoot "alacritty\kanagawa_dragon.toml") `
-        -Target (Join-Path $ConfigRoot "alacritty\kanagawa_dragon.toml")
-    
-    New-Symlink `
-        -Source (Join-Path $WindowsRoot "alacritty\font_iosevka.toml") `
-        -Target (Join-Path $ConfigRoot "alacritty\font_iosevka.toml")
-
-    # PowerShell profile
-    New-Symlink `
-        -Source (Join-Path $WindowsRoot "PowerShell\profile.ps1") `
-        -Target "$env:USERPROFILE\Documents\PowerShell\Microsoft.PowerShell_profile.ps1"
 
     # Starship configuration
     New-Symlink `
@@ -242,7 +303,7 @@ if (-not $SkipSymlinks) {
     }
 
 } else {
-    Write-Warning "Skipping symlink creation (--SkipSymlinks)"
+    Write-Warn "Skipping symlink creation (--SkipSymlinks)"
 }
 
 # ============================================================================
@@ -263,7 +324,7 @@ if (-not $SkipNeovim) {
             git clone https://github.com/shivajreddy/dotfiles.git $tempDotfiles --depth 1
             
             if (Test-Path $nvimConfig) {
-                Write-Warning "Neovim config already exists"
+                Write-Warn "Neovim config already exists"
                 $backup = "${nvimConfig}.backup.$(Get-Date -Format 'yyyyMMdd_HHmmss')"
                 Move-Item $nvimConfig $backup
                 Write-Success "Backed up to: $backup"
@@ -287,7 +348,7 @@ if (-not $SkipNeovim) {
         Write-Host "  See windows/nvim/README.md for setup instructions"
     }
 } else {
-    Write-Warning "Skipping Neovim setup (--SkipNeovim)"
+    Write-Warn "Skipping Neovim setup (--SkipNeovim)"
 }
 
 # ============================================================================
@@ -335,7 +396,7 @@ if (-not $SkipKanata) {
         Write-Host "  Skipped Kanata setup"
     }
 } else {
-    Write-Warning "Skipping Kanata setup (--SkipKanata)"
+    Write-Warn "Skipping Kanata setup (--SkipKanata)"
 }
 
 # ============================================================================
@@ -345,9 +406,9 @@ if (-not $SkipKanata) {
 Write-Step "Installation complete!"
 
 Write-Host "`n" -NoNewline
-Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
+Write-Host "â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”" -ForegroundColor DarkGray
 Write-Host "  NEXT STEPS" -ForegroundColor Cyan
-Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
+Write-Host "â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”" -ForegroundColor DarkGray
 
 Write-Host "`n1. " -NoNewline -ForegroundColor Yellow
 Write-Host "Launch Alacritty" -ForegroundColor White
@@ -355,7 +416,7 @@ Write-Host "   Search for 'Alacritty' in Start Menu or run: alacritty"
 
 Write-Host "`n2. " -NoNewline -ForegroundColor Yellow
 Write-Host "Configure PowerShell 7 as default (optional)" -ForegroundColor White
-Write-Host "   Windows Terminal Settings → Default profile → PowerShell 7"
+Write-Host "   Windows Terminal Settings â†’ Default profile â†’ PowerShell 7"
 
 Write-Host "`n3. " -NoNewline -ForegroundColor Yellow
 Write-Host "Test Neovim" -ForegroundColor White
@@ -380,18 +441,19 @@ Write-Host "   Starship: ~/.config/starship.toml"
 Write-Host "   Kanata: ~/.config/kanata/kanata-aula-f75.kbd"
 
 Write-Host "`n" -NoNewline
-Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
+Write-Host "â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”" -ForegroundColor DarkGray
 Write-Host "  DOCUMENTATION" -ForegroundColor Cyan
-Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
+Write-Host "â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”" -ForegroundColor DarkGray
 
 Write-Host "`nFor detailed guides, see:" -ForegroundColor White
-Write-Host "  • docs/ALACRITTY_SETUP.md - Complete Alacritty setup guide"
-Write-Host "  • docs/WINDOWS.md - Windows-specific documentation"
-Write-Host "  • windows/nvim/README.md - Neovim setup"
-Write-Host "  • windows/kanata/README.md - Kanata keyboard remapping"
+Write-Host "  â€¢ docs/ALACRITTY_SETUP.md - Complete Alacritty setup guide"
+Write-Host "  â€¢ docs/WINDOWS.md - Windows-specific documentation"
+Write-Host "  â€¢ windows/nvim/README.md - Neovim setup"
+Write-Host "  â€¢ windows/kanata/README.md - Kanata keyboard remapping"
 
 Write-Host "`nFriend's dotfiles: " -NoNewline -ForegroundColor White
 Write-Host "https://github.com/shivajreddy/dotfiles" -ForegroundColor Blue
 
 Write-Host "`n" -ForegroundColor DarkGray
 Write-Success "Happy coding!"
+
